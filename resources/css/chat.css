@@ -1,0 +1,137 @@
+/* ==========================================================================
+   Chat App Styles
+   Save as resources/css/chat.css and import it in resources/css/app.css:
+       @import 'chat.css';
+   ========================================================================== */
+
+/* Friends list */
+.list-group-item {
+    border: none;
+    border-bottom: 1px solid #f0f0f0;
+    padding: 0.85rem 1.25rem;
+    transition: background-color 0.15s ease;
+}
+
+.list-group-item:hover {
+    background-color: #f8f9fa;
+}
+
+.list-group-item.active {
+    background-color: #e7f1ff;
+    border-color: transparent;
+}
+
+.list-group-item a {
+    text-decoration: none;
+    color: #212529;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.list-group-item.active a {
+    color: #0d6efd !important;
+}
+
+/* Online status dot (add a <span class="status-dot"></span> next to a friend's name) */
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #adb5bd;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.status-dot.online {
+    background-color: #28a745;
+}
+
+/* Chat window */
+#chat-messages {
+    background-color: #f7f8fa;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Message bubbles (replaces the plain badge look) */
+#chat-messages .badge {
+    display: inline-block;
+    max-width: 70%;
+    padding: 0.55rem 0.9rem;
+    border-radius: 1.1rem;
+    font-weight: 400;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    text-align: left;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* Sent messages (mine) */
+.text-end .badge.bg-primary {
+    background-color: #0d6efd !important;
+    border-bottom-right-radius: 0.25rem;
+}
+
+/* Received messages (theirs) */
+.text-start .badge.bg-secondary {
+    background-color: #e9ecef !important;
+    color: #212529 !important;
+    border-bottom-left-radius: 0.25rem;
+}
+
+/* Spacing between consecutive messages */
+#chat-messages > div {
+    margin-bottom: 0.4rem;
+}
+
+/* Chat input footer */
+.card-footer {
+    background-color: #fff;
+    border-top: 1px solid #e9ecef;
+    padding: 0.75rem 1rem;
+}
+
+#chat-input {
+    border-radius: 1.5rem;
+    padding-left: 1rem;
+}
+
+.card-footer .btn {
+    border-radius: 1.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+}
+
+/* Card header (chat partner name) */
+.card-header {
+    font-weight: 600;
+    background-color: #fff;
+}
+
+/* Scrollbar polish for the messages panel */
+#chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+#chat-messages::-webkit-scrollbar-thumb {
+    background-color: #ced4da;
+    border-radius: 3px;
+}
+
+/* Empty state (no friend selected) */
+.card-header:has(+ #chat-messages:empty) {
+    color: #6c757d;
+    font-style: italic;
+}
+
+/* Responsive: stack friends list above chat on small screens */
+@media (max-width: 767.98px) {
+    .col-md-4,
+    .col-md-8 {
+        margin-bottom: 1rem;
+    }
+}
