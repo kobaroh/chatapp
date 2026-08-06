@@ -1,11 +1,11 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('seocket.io')(http,{cors:{
+var io = require('socket.io')(http,{cors:{
     origin:"http://localhost:8000"
 }});
 
-var mysql = require('mysql');
+var mysql = require('mysql2');
 var moment = require('moment');
 const { Socket } = require('dgram');
 

@@ -21,3 +21,11 @@
     </div>
 </div>
 @endsection
+
+@section('scripts')
+<script>
+    var user_id = '{{Auth::id()}}';
+    var io = socket("http://localhost:3000",{query:{user_id:user_id}});
+</script>
+
+@endsection
