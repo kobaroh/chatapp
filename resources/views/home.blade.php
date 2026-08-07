@@ -10,12 +10,20 @@
                 <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         @foreach ($friends as $friend)
-                            <li class="list-group-item {{ (isset($otherUser) && $otherUser->id == $friend['id']) ? 'active' : '' }}">
-                                <a href="{{ url('/home/'.$friend['id']) }}" class="{{ (isset($otherUser) && $otherUser->id == $friend['id']) ? 'text-white' : '' }}">
-                                    {{ $friend['name'] }}
-                                </a>
-                            </li>
-                        @endforeach
+    <li class="list-group-item {{ (isset($otherUser) && $otherUser->id == $friend['id']) ? 'active' : '' }}">
+        <a href="{{ url('/home/'.$friend['id']) }}" class="{{ (isset($otherUser) && $otherUser->id == $friend['id']) ? 'text-white' : '' }}">
+            <div class="avatar-wrapper">
+                @if (!empty($friend['avatar']))
+                    <img src="{{ asset('storage/'.$friend['avatar']) }}" class="avatar-img" alt="">
+                @else
+                    <div class="avatar-initials">{{ strtoupper(substr($friend['name'], 0, 2)) }}</div>
+                @endif
+                <span class="status-dot {{ $friend['is_online'] ? 'online' : 'offline' }}"></span>
+            </div>
+            {{ $friend['name'] }}
+        </a>
+    </li>
+@endforeach
                     </ul>
                 </div>
             </div>
@@ -77,8 +85,8 @@
             if (!message) return;
 
             socket.emit('chat message', {
-                from_id: user_id,
-                to_id: other_id,
+                user_id: user_id,
+                other_user_id: other_id,
                 group_id: group_id,
                 message: message
             });
@@ -90,7 +98,7 @@
 
     socket.on('chat message', function (data) {
         if (data.group_id === group_id) {
-            appendMessage(data.message, data.from_id == user_id);
+            appendMessage(data.message, data.user_id == user_id);
         }
     });
 
