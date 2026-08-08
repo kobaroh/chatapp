@@ -80,12 +80,9 @@
 
     console.log('SOCKET CREATED');
 
-    const messagesDiv = document.getElementById('chat-messages');
-
     document.addEventListener('submit', function (e) {
         if (e.target && e.target.id === 'chat-form') {
             e.preventDefault();
-            console.log('SUBMIT HANDLED');
 
             const input = document.getElementById('chat-input');
             const message = input.value.trim();
@@ -112,6 +109,7 @@
     });
 
     function appendMessage(text, isMine) {
+        const messagesDiv = document.getElementById('chat-messages');
         const div = document.createElement('div');
         div.className = 'mb-2 ' + (isMine ? 'text-end' : 'text-start');
         div.innerHTML = '<span class="badge ' + (isMine ? 'bg-primary' : 'bg-secondary') + '">' + text + '</span>';
