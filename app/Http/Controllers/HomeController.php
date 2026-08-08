@@ -28,12 +28,13 @@ class HomeController extends Controller
     {
         $messages = [];
         $otherUser = null;
+        $group_id = null;
         if ($id) {
             $otherUser = User::findOrFail($id);
             $group_id = (Auth::id() > $id) ? Auth::id().$id : $id.Auth::id();
             $messages = Chat::where('group_id', $group_id)->get()->toArray();
-        }
+                }
         $friends = User::where('id', '!=', Auth::id())->get()->toArray();
-        return view('home', compact('friends', 'messages', 'otherUser', 'id'));
+        return view('home', compact('friends', 'messages', 'otherUser', 'id', 'group_id'));
     }
 }

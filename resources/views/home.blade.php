@@ -68,19 +68,26 @@
 
 @section('scripts')
 <script>
+    console.log('SCRIPT START');
+
     var user_id = '{{ Auth::id() }}';
     var other_id = '{{ $otherUser ? $otherUser->id : "" }}';
     var group_id = '{{ isset($group_id) ? $group_id : "" }}';
 
+    console.log('VARS SET', user_id, other_id, group_id);
+
     var socket = io("http://localhost:3000", { query: { user_id: user_id } });
 
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('chat-input');
+    console.log('SOCKET CREATED');
+
     const messagesDiv = document.getElementById('chat-messages');
 
-    if (form) {
-        form.addEventListener('submit', function (e) {
+    document.addEventListener('submit', function (e) {
+        if (e.target && e.target.id === 'chat-form') {
             e.preventDefault();
+            console.log('SUBMIT HANDLED');
+
+            const input = document.getElementById('chat-input');
             const message = input.value.trim();
             if (!message) return;
 
@@ -93,8 +100,10 @@
 
             appendMessage(message, true);
             input.value = '';
-        });
-    }
+        }
+    });
+
+    console.log('LISTENER ATTACHED');
 
     socket.on('chat message', function (data) {
         if (data.group_id === group_id) {
@@ -109,5 +118,7 @@
         messagesDiv.appendChild(div);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
+
+    console.log('SCRIPT END');
 </script>
 @endsection
