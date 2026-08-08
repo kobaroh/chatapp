@@ -35,37 +35,73 @@ io.on('connection', function (socket) {
     socket.broadcast.emit('user_connected', user_id);
 
     con.query('UPDATE users SET is_online = 1 WHERE id = ?', [user_id], function (err) {
-        if (err) throw err;
+        if (err) {
+            console.error('is_online update error:', err.message);
+            return;
+        }
         console.log("User Connected", user_id);
     });
 
-    // Handle incoming chat messages
     socket.on('chat message', function (data) {
         var group_id = data.group_id;
         var from_id = data.user_id;
         var to_id = data.other_user_id;
         var message = data.message;
 
-        // Save the message to the database
         con.query(
             'INSERT INTO chats (user_id, other_user_id, message, group_id, is_read) VALUES (?, ?, ?, ?, 0)',
             [from_id, to_id, message, group_id],
             function (err) {
-                if (err) throw err;
+                if (err) {
+                    console.error('chat message insert error:', err.message);
+                    return;
+                }
 
-                // Send the message to the recipient if they're online
                 if (sockets[to_id]) {
                     sockets[to_id].forEach(function (recipientSocket) {
                         recipientSocket.emit('chat message', data);
                     });
                 }
 
-                // Also send it back to the sender's other open tabs/devices
                 if (sockets[from_id]) {
                     sockets[from_id].forEach(function (senderSocket) {
                         if (senderSocket.id !== socket.id) {
                             senderSocket.emit('chat message', data);
                         }
+                    });
+                }
+            }
+        );
+    });
+
+    socket.on('typing', function (data) {
+        if (sockets[data.other_user_id]) {
+            sockets[data.other_user_id].forEach(function (s) {
+                s.emit('typing', data);
+            });
+        }
+    });
+
+    socket.on('stop_typing', function (data) {
+        if (sockets[data.other_user_id]) {
+            sockets[data.other_user_id].forEach(function (s) {
+                s.emit('stop_typing', data);
+            });
+        }
+    });
+
+    socket.on('mark_read', function (data) {
+        con.query(
+            'UPDATE chats SET is_read = 1 WHERE group_id = ? AND user_id = ? AND other_user_id = ? AND is_read = 0',
+            [data.group_id, data.from_id, data.to_id],
+            function (err) {
+                if (err) {
+                    console.error('mark_read error:', err.message);
+                    return;
+                }
+                if (sockets[data.from_id]) {
+                    sockets[data.from_id].forEach(function (s) {
+                        s.emit('messages_read', { group_id: data.group_id, by: data.to_id });
                     });
                 }
             }
@@ -82,7 +118,10 @@ io.on('connection', function (socket) {
         }
 
         con.query('UPDATE users SET is_online = 0 WHERE id = ?', [user_id], function (err) {
-            if (err) throw err;
+            if (err) {
+                console.error('is_online disconnect update error:', err.message);
+                return;
+            }
             console.log("User Disconnected", user_id);
         });
     });

@@ -1,23 +1,45 @@
 /* ==========================================================================
-   Chat App Styles
-   Save as resources/css/chat.css and import it in resources/css/app.css:
-       @import 'chat.css';
+   Chat App Styles — v2 (typing indicator, notifications, redesigned bubbles)
+   Save as resources/css/chat.css and import it in resources/sass/app.scss:
+       @import '../css/chat.css';
    ========================================================================== */
 
-/* Friends list */
+/* ---- Cards & layout ---- */
+.card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.card-header {
+    font-weight: 600;
+    background: linear-gradient(135deg, #4f7cff 0%, #6a5cff 100%);
+    color: #fff;
+    border: none;
+    padding: 1rem 1.25rem;
+}
+
+#friends-list .card-header {
+    background: #fff;
+    color: #212529;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* ---- Friends list ---- */
 .list-group-item {
     border: none;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid #f5f5f7;
     padding: 0.85rem 1.25rem;
     transition: background-color 0.15s ease;
 }
 
 .list-group-item:hover {
-    background-color: #f8f9fa;
+    background-color: #f8f9fb;
 }
 
 .list-group-item.active {
-    background-color: #e7f1ff;
+    background: linear-gradient(135deg, #eef2ff 0%, #f2eeff 100%);
     border-color: transparent;
 }
 
@@ -31,50 +53,69 @@
 }
 
 .list-group-item.active a {
-    color: #0d6efd !important;
+    color: #4f46e5 !important;
 }
 
-/* Profile picture column
-   Markup:
-   <div class="avatar-wrapper">
-       <img src="..." class="avatar-img" alt="">
-       <span class="status-dot online"></span>
-   </div>
-*/
+.friend-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.list-group-item:has(.unread-badge:not([style*="display:none"])) .friend-name {
+    font-weight: 700;
+    color: #000;
+}
+
+.unread-badge {
+    display: inline-block;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background-color: #ff3b5c;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+/* ---- Avatars ---- */
 .avatar-wrapper {
     position: relative;
     flex-shrink: 0;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
 }
 
 .avatar-img {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     object-fit: cover;
     display: block;
     background-color: #e9ecef;
-    border: 1px solid #dee2e6;
+    box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Fallback initials avatar, used when no picture is set
-   Markup: <div class="avatar-initials">JD</div> instead of <img> */
 .avatar-initials {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background-color: #6c757d;
+    background: linear-gradient(135deg, #6a5cff, #4f7cff);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 0.85rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
+    box-shadow: 0 0 0 2px #fff, 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 
-/* Online status dot, positioned on the bottom-right corner of the avatar */
 .status-dot {
     position: absolute;
     bottom: 0;
@@ -83,32 +124,31 @@
     height: 11px;
     border-radius: 50%;
     border: 2px solid #fff;
-    background-color: #dc3545; /* offline = red, default */
+    background-color: #dc3545;
 }
 
 .status-dot.online {
-    background-color: #28a745; /* online = green */
+    background-color: #22c55e;
 }
 
 .status-dot.offline {
-    background-color: #dc3545; /* explicit offline class, same as default */
+    background-color: #dc3545;
 }
 
-/* Larger avatar + status dot for the chat header (current conversation partner) */
 .chat-header-avatar {
     position: relative;
-    width: 32px;
-    height: 32px;
+    width: 34px;
+    height: 34px;
     display: inline-block;
     vertical-align: middle;
-    margin-right: 0.5rem;
+    margin-right: 0.6rem;
 }
 
 .chat-header-avatar .avatar-img,
 .chat-header-avatar .avatar-initials {
-    width: 32px;
-    height: 32px;
-    font-size: 0.7rem;
+    width: 34px;
+    height: 34px;
+    font-size: 0.72rem;
 }
 
 .chat-header-avatar .status-dot {
@@ -117,87 +157,171 @@
     border-width: 2px;
 }
 
-/* Chat window */
+/* ---- Chat window ---- */
 #chat-messages {
-    background-color: #f7f8fa;
+    background-color: #f6f7fb;
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
 }
 
-/* Message bubbles (replaces the plain badge look) */
+/* Message bubbles with a tail, animated on arrival */
 #chat-messages .badge {
     display: inline-block;
     max-width: 70%;
-    padding: 0.55rem 0.9rem;
-    border-radius: 1.1rem;
+    padding: 0.6rem 0.95rem;
+    border-radius: 1.15rem;
     font-weight: 400;
     font-size: 0.95rem;
     line-height: 1.4;
     text-align: left;
     white-space: pre-wrap;
     word-break: break-word;
+    position: relative;
+    animation: bubble-in 0.18s ease-out;
 }
 
-/* Sent messages (mine) */
+@keyframes bubble-in {
+    from { opacity: 0; transform: translateY(6px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
 .text-end .badge.bg-primary {
-    background-color: #0d6efd !important;
-    border-bottom-right-radius: 0.25rem;
+    background: linear-gradient(135deg, #4f7cff, #6a5cff) !important;
+    border-bottom-right-radius: 0.3rem;
 }
 
-/* Received messages (theirs) */
 .text-start .badge.bg-secondary {
-    background-color: #e9ecef !important;
+    background-color: #ffffff !important;
     color: #212529 !important;
-    border-bottom-left-radius: 0.25rem;
+    border: 1px solid #ecedf2;
+    border-bottom-left-radius: 0.3rem;
 }
 
-/* Spacing between consecutive messages */
 #chat-messages > div {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.45rem;
 }
 
-/* Chat input footer */
+/* ---- Typing indicator ---- */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 1.25rem;
+    font-size: 0.8rem;
+    color: #6c757d;
+    min-height: 1.6rem;
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: 3px;
+}
+
+.typing-dots span {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: #9aa0ac;
+    animation: typing-bounce 1.2s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-4px); opacity: 1; }
+}
+
+/* ---- Seen indicator ---- */
+.seen-indicator {
+    text-align: right;
+    font-size: 0.75rem;
+    color: #6c757d;
+    padding: 0 1.25rem 0.35rem;
+    min-height: 1rem;
+}
+
+/* ---- Chat input footer ---- */
 .card-footer {
     background-color: #fff;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid #ecedf2;
     padding: 0.75rem 1rem;
 }
 
 #chat-input {
-    border-radius: 1.5rem;
-    padding-left: 1rem;
+    border-radius: 1.6rem;
+    padding-left: 1.1rem;
+    border: 1px solid #e3e5eb;
+    background-color: #f6f7fb;
 }
 
-.card-footer .btn {
-    border-radius: 1.5rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-}
-
-/* Card header (chat partner name) */
-.card-header {
-    font-weight: 600;
+#chat-input:focus {
     background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(79, 124, 255, 0.15);
+    border-color: #4f7cff;
 }
 
-/* Scrollbar polish for the messages panel */
+.card-footer .btn-primary {
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #4f7cff, #6a5cff);
+    border: none;
+    flex-shrink: 0;
+}
+
+/* ---- Notification permission banner ---- */
+.notify-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background-color: #fff8e6;
+    border-bottom: 1px solid #f5e6b8;
+    font-size: 0.85rem;
+    color: #7a5c00;
+}
+
+.notify-banner button {
+    border: none;
+    background-color: #4f7cff;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.notify-banner button:hover {
+    background-color: #3d64e0;
+}
+
+/* ---- Scrollbar polish ---- */
 #chat-messages::-webkit-scrollbar {
     width: 6px;
 }
 
 #chat-messages::-webkit-scrollbar-thumb {
-    background-color: #ced4da;
+    background-color: #d2d5dd;
     border-radius: 3px;
 }
 
-/* Empty state (no friend selected) */
+/* ---- Empty state ---- */
 .card-header:has(+ #chat-messages:empty) {
-    color: #6c757d;
+    color: rgba(255, 255, 255, 0.85);
     font-style: italic;
 }
 
-/* Responsive: stack friends list above chat on small screens */
+/* ---- Responsive ---- */
 @media (max-width: 767.98px) {
     .col-md-4,
     .col-md-8 {
