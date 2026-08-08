@@ -49,7 +49,7 @@ io.on('connection', function (socket) {
         var message = data.message;
 
         con.query(
-            'INSERT INTO chats (user_id, other_user_id, message, group_id, is_read) VALUES (?, ?, ?, ?, 0)',
+            'INSERT INTO chats (user_id, other_user_id, message, group_id, is_read, created_at, updated_at) VALUES (?, ?, ?, ?, 0, NOW(), NOW())',
             [from_id, to_id, message, group_id],
             function (err) {
                 if (err) {

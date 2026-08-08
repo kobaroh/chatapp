@@ -57,6 +57,7 @@
                             <span class="badge {{ $message['user_id'] == Auth::id() ? 'bg-primary' : 'bg-secondary' }}">
                                 {{ $message['message'] }}
                             </span>
+                            <div class="message-time">{{ \Carbon\Carbon::parse($message['created_at'])->format('g:i A') }}</div>
                         </div>
                     @endforeach
                 </div>
@@ -181,7 +182,12 @@
         const messagesDiv = document.getElementById('chat-messages');
         const div = document.createElement('div');
         div.className = 'mb-2 ' + (isMine ? 'text-end' : 'text-start');
-        div.innerHTML = '<span class="badge ' + (isMine ? 'bg-primary' : 'bg-secondary') + '">' + text + '</span>';
+
+        const time = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+        div.innerHTML = '<span class="badge ' + (isMine ? 'bg-primary' : 'bg-secondary') + '">' + text + '</span>' +
+                         '<div class="message-time">' + time + '</div>';
+
         messagesDiv.appendChild(div);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
